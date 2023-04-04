@@ -143,12 +143,12 @@ function postCallLog(body,queryParams){
     }
   }
 
-  if(!process_Name){
-    let fetchProcessResponse = getProcess(apiKey);
-    if(fetchProcessResponse.isSucess){
-      process_data=fetchProcessResponse.data
-    }
-  }
+//   if(!process_Name){
+//     let fetchProcessResponse = getProcess(apiKey);
+//     if(fetchProcessResponse.isSucess){
+//       process_data=fetchProcessResponse.data
+//     }
+//   }
   console.log(process_data)
 
   if(targetSheetName === ''){
@@ -273,12 +273,12 @@ function postInteraction(body,queryParams){
     }
   }
 
-  if(!process_Name){
-    let fetchProcessResponse = getProcess(apiKey);
-    if(fetchProcessResponse.isSucess){
-      process_data=fetchProcessResponse.data
-    }
-  }
+//   if(!process_Name){
+//     let fetchProcessResponse = getProcess(apiKey);
+//     if(fetchProcessResponse.isSucess){
+//       process_data=fetchProcessResponse.data
+//     }
+//   }
   console.log(process_data)
 
   if(targetSheetName === ''){
