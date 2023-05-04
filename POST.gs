@@ -8,7 +8,7 @@ let logTimeStamp = false;
 
 
 function _getBaseUrl() {
-  return 'https://api.runo.in/v1';
+  return 'https://api.runo.in/qa';
 }
 
 function onOpen(e) {
@@ -34,7 +34,8 @@ function restructureParameters(parameters){
 }
 
 function getProcess(apiKey){
-  const url = `${_getBaseUrl()}/process`;
+  const url = `${
+  ()}/process`;
     const options = {
       'method': 'get',
       'contentType': 'application/json',
