@@ -34,8 +34,7 @@ function restructureParameters(parameters){
 }
 
 function getProcess(apiKey){
-  const url = `${
-  ()}/process`;
+  const url = `${_getBaseUrl()}/process`;
     const options = {
       'method': 'get',
       'contentType': 'application/json',
