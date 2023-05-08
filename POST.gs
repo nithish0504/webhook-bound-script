@@ -100,6 +100,7 @@ function getWebhookConfig(processId,input_type){
 
 const callLogFieldMapping = {
   //"Column_Name_In_Excel": "Field_Name_In_Data"
+  "callId":"callId",
   "Caller Id": "callerId",
   "Caller Name": "calledBy",
   "Name": "name",
