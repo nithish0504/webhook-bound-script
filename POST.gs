@@ -293,10 +293,11 @@ function postInteraction(body,queryParams){
 
   let interaction_fields={
     'Interaction Date': 'createdAt',
-    'Process Name':'processName'
+    'Process Name':'processName',
+    "callId":"callId"
   }
   for (let i in interaction_fields) {
-    columns.push(i)
+//     columns.push(i)
     fixedFieldMapping[i] = interaction_fields[i]
   }
   for (let i in fixedFieldMapping) {
