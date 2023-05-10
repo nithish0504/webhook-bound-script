@@ -220,6 +220,9 @@ function postCallLog(body,queryParams){
       } else {
         value = value.toString();
       }
+      if(_header=='Process Name'){
+          value = process_Name
+      }
       if (value != null) {
         rowData.push(value);
       }
