@@ -384,6 +384,13 @@ function postInteraction(body,queryParams){
         let fieldIndex = _interaction.userFields.findIndex((_x) => _x.name.toLowerCase() === mappedHeader.toLowerCase());
         if (fieldIndex !== -1) {
           value = _interaction.userFields[fieldIndex].value;
+          if(Array.isArray(value) && value.length>0){
+            if(value.length==1){
+              value = value[0]
+            }else{
+              value = value.join(",")
+            }
+          }
           if (dateCustomFields.indexOf(_header) !== -1) {
             value = new Date(value * 1000).toLocaleString('en-GB', { timeZone: 'Asia/Kolkata' });
           }
