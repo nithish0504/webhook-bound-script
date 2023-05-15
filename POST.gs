@@ -8,7 +8,7 @@ let logTimeStamp = false;
 
 
 function _getBaseUrl() {
-  return 'https://api.runo.in/qa';
+  return 'https://api.runo.in/v1';
 }
 
 function onOpen(e) {
