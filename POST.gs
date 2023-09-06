@@ -113,10 +113,15 @@ const callLogFieldMapping = {
   "Recording Path":"recordingPath"
 };
 
+function getScriptId(){
+  let scriptId = ScriptApp.getScriptId()
+  console.log(scriptId)
+}
+
 
 function postCallLog(body,queryParams){
   let webhookConfigResponse = getWebhookConfig(body.processId,"callLogs")
-  if(!webhookConfigResponse.isSuccess){
+  if(!webhookConfigResponse.isSuccess || !webhookConfigResponse.data){
     return {
       statusCode:"-1",
       status:"error",
@@ -133,8 +138,8 @@ function postCallLog(body,queryParams){
   const dateCustomFields = variables.date_columns;
   let processId = body.processId;
   let process_Name = variables["defaultProcessName"] ? variables["defaultProcessName"] : '';
-  let process_data=[]
   let columns = [];
+  
 
   if (!apiKey) {
     Logger.log('Parameter apiKey is mandatory. Please provide proper value');
@@ -144,14 +149,6 @@ function postCallLog(body,queryParams){
     }
   }
 
-//   if(!process_Name){
-//     let fetchProcessResponse = getProcess(apiKey);
-//     if(fetchProcessResponse.isSucess){
-//       process_data=fetchProcessResponse.data
-//     }
-//   }
-  console.log(process_data)
-
   if(targetSheetName === ''){
     let sheetsObj = getAllActiveSheetsObj()
     if(targetSheetId && targetSheetId in sheetsObj){
@@ -160,10 +157,7 @@ function postCallLog(body,queryParams){
       targetSheetName = `${process_Name}_callLogs`
     }
   }
-
-  for(key in fieldMapping){
-    columns.push(key)
-  }
+  
 
   let sheet = createSheet_(SpreadsheetApp.getActive(), targetSheetName);
   if (!sheet) {
@@ -176,14 +170,15 @@ function postCallLog(body,queryParams){
 
   let lastRowIndex = sheet.getLastRow();
 
-  if(body.recordingPath){
-    columns.push("Recording Path");
-  }
-
   if (lastRowIndex === 0.0) {
     Logger.log("Column names are missing in sheet. Adding the column names")
+    for(key in fieldMapping){
+      columns.push(key)
+    }
+    if(body.recordingPath){
+      columns.push("Recording Path");
+    }
     sheet.appendRow(columns)
-    lastRowIndex = sheet.getLastRow()
     sheet.setFrozenRows(1);
   }
   const headerValues = sheet.getDataRange().getValues()[0];
@@ -231,7 +226,11 @@ function postCallLog(body,queryParams){
   })
 
   if (sheetDataToBeWritten.length > 0) {
-    writeToSheet_(sheet, lastRowIndex + 1, 1, sheetDataToBeWritten.length, Object.getOwnPropertyNames(headerValues).length - 1,sheetDataToBeWritten);
+    if(sheetDataToBeWritten.length==1){
+      appendToSheet_(sheet,sheetDataToBeWritten[0])
+    }else{
+      writeToSheet_(sheet, Object.getOwnPropertyNames(headerValues).length - 1,sheetDataToBeWritten);
+    }
     Logger.log(`Successfully updated the sheet with callLogs`);
     return{
       status: 'success',
@@ -277,14 +276,6 @@ function postInteraction(body,queryParams){
     }
   }
 
-//   if(!process_Name){
-//     let fetchProcessResponse = getProcess(apiKey);
-//     if(fetchProcessResponse.isSucess){
-//       process_data=fetchProcessResponse.data
-//     }
-//   }
-  console.log(process_data)
-
   if(targetSheetName === ''){
     let sheetsObj = getAllActiveSheetsObj()
     if(targetSheetId && targetSheetId in sheetsObj){
@@ -323,7 +314,6 @@ function postInteraction(body,queryParams){
   if (lastRowIndex === 0.0) {
     Logger.log('Column names are missing in sheet. Adding the column names')
     sheet.appendRow(columns)
-    lastRowIndex = sheet.getLastRow()
     sheet.setFrozenRows(1);
   }
   const headerValues = sheet.getDataRange().getValues()[0];
@@ -408,7 +398,11 @@ function postInteraction(body,queryParams){
   });
 
   if (sheetDataToBeWritten.length > 0) {
-    writeToSheet_(sheet, lastRowIndex + 1, 1, sheetDataToBeWritten.length, Object.getOwnPropertyNames(headerValues).length - 1,sheetDataToBeWritten);
+    if(sheetDataToBeWritten.length==1){
+      appendToSheet_(sheet,sheetDataToBeWritten[0])
+    }else{
+      writeToSheet_(sheet, Object.getOwnPropertyNames(headerValues).length - 1,sheetDataToBeWritten);
+    }
     Logger.log(`Successfully updated the sheet with interactions`);
     return{
       status: 'success',
@@ -434,6 +428,13 @@ function doGet(e) {
     let response = {
       status:"success",
       data:JSON.parse(documentProperties.getProperty("webhookData"))
+    }
+    return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
+  }
+  if(params.data_type[0]==="scriptId"){
+    let response = {
+      status:"success",
+      data:ScriptApp.getScriptId()
     }
     return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
   }
@@ -534,11 +535,20 @@ function doPost(e) {
 
 }
 
-function writeToSheet_(sheet, startRow, startColumn, totalRows, totalColumns, data) {
+function writeToSheet_(sheet,totalColumns,data) {
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
-  sheet.getRange(startRow, startColumn, totalRows, totalColumns).setValues(data);
+  let startRow = sheet.getLastRow()+1;
+  sheet.getRange(startRow,1,data.length, totalColumns).setValues(data);
   SpreadsheetApp.flush();
+  lock.releaseLock();
+}
+
+function appendToSheet_(sheet,data) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  sheet.appendRow(data)
+  SpreadsheetApp.flush()
   lock.releaseLock();
 }
 
@@ -548,6 +558,5 @@ function createSheet_(activeSpreadsheet, sheetName) {
     sheet = activeSpreadsheet.insertSheet();
     sheet.setName(sheetName);
   }
-
   return sheet;
 }
