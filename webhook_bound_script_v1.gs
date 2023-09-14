@@ -121,6 +121,7 @@ function getScriptId(){
 
 
 function postCallLog(body,queryParams){
+  try(
   let webhookConfigResponse = getWebhookConfig(body.processId,"callLogs")
   if(!webhookConfigResponse.isSuccess || !webhookConfigResponse.data){
     return {
@@ -243,6 +244,10 @@ function postCallLog(body,queryParams){
       status: 'success',
       message: 'No callLogs are found in the data'
     };
+  }
+   }catch(e){
+    console.log("postCallLog",e)
+    documentProperties.setProperty("postCallLogError",e.message);
   }
 }
 
