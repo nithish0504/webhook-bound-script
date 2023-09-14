@@ -121,7 +121,7 @@ function getScriptId(){
 
 
 function postCallLog(body,queryParams){
-  try(
+  try{
   let webhookConfigResponse = getWebhookConfig(body.processId,"callLogs")
   if(!webhookConfigResponse.isSuccess || !webhookConfigResponse.data){
     return {
